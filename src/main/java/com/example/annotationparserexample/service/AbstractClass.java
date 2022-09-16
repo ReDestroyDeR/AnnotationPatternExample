@@ -1,11 +1,8 @@
 package com.example.annotationparserexample.service;
 
 import com.example.annotationparserexample.annotation.ActionResolver;
-import com.example.annotationparserexample.annotation.AutowireImpl;
 import com.example.annotationparserexample.dto.ActionDto;
 import com.example.annotationparserexample.enums.ActionType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,10 +13,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
-public abstract class AbstractClass <Self extends AbstractClass<?>> {
-    @AutowireImpl
-    protected Self self;
-
+public abstract class AbstractClass {
     private final Map<ActionType, Method> methodMap;
 
     protected AbstractClass() {
@@ -32,12 +26,15 @@ public abstract class AbstractClass <Self extends AbstractClass<?>> {
                 ));
     }
 
+    protected AbstractClass getSelfReference() {
+        return this;
+    }
+
     public String processAction(ActionDto dto) {
-        Method raw = methodMap.get(dto.getActionType());
+        Method actionResolver = methodMap.get(dto.getActionType());
         try {
-            Method proxied = raw.getClass().getMethod(raw.getName(), raw.getParameterTypes());
-            return (String) proxied.invoke(self, dto);
-        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            return (String) actionResolver.invoke(getSelfReference(), dto);
+        } catch (InvocationTargetException | IllegalAccessException e) {
             if (e.getCause() instanceof RuntimeException)
                 throw (RuntimeException) e.getCause();
 

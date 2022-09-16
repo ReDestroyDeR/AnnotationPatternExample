@@ -5,6 +5,8 @@ import com.example.annotationparserexample.annotation.NameNotNull;
 import com.example.annotationparserexample.dto.ActionDto;
 import com.example.annotationparserexample.enums.ActionType;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -12,15 +14,15 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 @Validated
 @Component
-public class ImplementationAlpha extends AbstractClass<ImplementationAlpha> {
-//    @Lazy
-//    @Autowired
-//    private ImplementationAlpha privateSelf;
-//
-//    @PostConstruct
-//    public void selfInjectInAbstractClass() {
-//        this.self = privateSelf;
-//    }
+public class ImplementationAlpha extends AbstractClass {
+    @Lazy
+    @Autowired
+    private ImplementationAlpha self;
+
+    @Override
+    protected ImplementationAlpha getSelfReference() {
+        return self;
+    }
 
     @ActionResolver(ActionType.ACTION_1)
     public String processA(@NameNotNull ActionDto actionDto) {
